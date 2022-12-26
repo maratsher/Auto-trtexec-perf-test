@@ -61,8 +61,8 @@ if __name__ == '__main__':
     parser.add_argument('--param-dir', type=str, default='./params', help='Dir with params for models')
     parser.add_argument('--global-params', type=str, default='./global-params.txt', help='File with global params')
     parser.add_argument('--trtexec-dir', type=str, default='./', help='Trtexec bin dir')
-    parser.add_argument('--qps', type=int, default=-1)
-    parser.add_argument('--dev', type=bool, default=False)
+    parser.add_argument('--qps', type=int, default=-1, help='qps condition')
+    parser.add_argument('--dev', type=bool, default=False, help='dev mode')
 
     opt = parser.parse_args()
     print(opt)
@@ -128,12 +128,12 @@ if __name__ == '__main__':
         if not opt.dev:
             # выполянем команду
             try:
-                #os.system(command) 
+                os.system(command) 
                 pass
             except Exception as e:
                 print("Команда {command} выполнена с ошибкой {e}")
                 continue
-            os.system("python3 export.py > buff.txt")
+            #os.system("python3 emulator.py > buff.txt")
 
             # ищем в выводе trtexec qps
             key_word = 'Throughput'
