@@ -61,6 +61,8 @@ if __name__ == '__main__':
     parser.add_argument('--param-dir', type=str, default='./params', help='Dir with params for models')
     parser.add_argument('--global-params', type=str, default='./global-params.txt', help='File with global params')
     parser.add_argument('--trtexec-dir', type=str, default='./', help='Trtexec bin dir')
+    parser.add_argument('--qps', type=int, default=-1)
+    parser.add_argument('--dev', type=bool, default=False)
 
     opt = parser.parse_args()
     print(opt)
@@ -109,6 +111,8 @@ if __name__ == '__main__':
         name = re.sub(r'\W+', '_', params)
         # скращаем имя
         name = name[name.find("weights"):]
+        # нумеруем
+        name = str(i+1)+"_"+name
 
         # если в save_dir уже есть файл с таким именем, пропускаем
         if os.path.exists(os.path.join(opt.save_dir, name+".txt")):
@@ -117,43 +121,48 @@ if __name__ == '__main__':
 
         # формируем строку исполняемой комманды
         command = str(opt.trtexec_dir) + "./trtexec "+ params + " "+global_params + " > buff.txt"
-        command = " ".join(command.split())
+        command = " ".join(command.split()) 
         print(command)
-        """
-        # выполянем команду
-        try:
-            #os.system(command) 
-            pass
-        except Exception as e:
-            print("Команда {command} выполнена с ошибкой {e}")
-            continue
-        os.system("python3 export.py > buff.txt")
-
-        # ищем в выводе trtexec qps
-        key_word = 'Throughput'
-        qps = 0
-        with open('buff.txt', 'r') as fp:
-            lines = fp.readlines()
-            for line in lines:
-                if line.find(key_word) != -1:
-                    qps = float(line.split(" ")[3])
-                    break
+        print(name)
         
-        print(f"QPS: {qps}")
-        # сранвивам qps, если вышли за рамки, завершаем программу
-        if(qps < 10): # <
-            print(f"Модель {name} вышла за рамки. Throughput {qps} qps" )
-            print("Тестирование завершено!")
-            exit()
-        else:
-            # если все хорошо, перемещаем буффер и save-dir с именем name.txt
-            os.rename("buff.txt", os.path.join(opt.save_dir, name+".txt"))
+        if not opt.dev:
+            # выполянем команду
+            try:
+                #os.system(command) 
+                pass
+            except Exception as e:
+                print("Команда {command} выполнена с ошибкой {e}")
+                continue
+            os.system("python3 export.py > buff.txt")
 
-        print()
-        print("="*100)
-        print(f"Протестированно {i+1} из {nm} моделей")
-        print("="*100)
-        print()
-        """
+            # ищем в выводе trtexec qps
+            key_word = 'Throughput'
+            qps = 0
+            with open('buff.txt', 'r') as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if line.find(key_word) != -1:
+                        qps = float(line.split(" ")[3])
+                        break
+            
+            print(f"QPS: {qps}")
+
+            if (opt.qps == -1):
+                os.rename("buff.txt", os.path.join(opt.save_dir, name+".txt"))
+            # сранвивам qps, если вышли за рамки, завершаем программу
+            elif(qps < 10): # <
+                print(f"Модель {name} вышла за рамки. Throughput {qps} qps" )
+                print("Тестирование завершено!")
+                exit()
+            else:
+                # если все хорошо, перемещаем буффер и save-dir с именем name.txt
+                os.rename("buff.txt", os.path.join(opt.save_dir, name+".txt"))
+
+            print()
+            print("="*100)
+            print(f"Протестированно {i+1} из {nm} моделей")
+            print("="*100)
+            print()
+        
 
 print("Тестирование завершено!")
