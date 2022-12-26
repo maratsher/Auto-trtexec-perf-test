@@ -118,7 +118,7 @@ if __name__ == '__main__':
         command = str(opt.trtexec_dir) + "./trtexec "+ params + " "+global_params + " > buff.txt"
         command = " ".join(command.split()) 
         print(command)
-        print(name)
+        #print(name)
         
         if not opt.dev:
             # если в save_dir уже есть файл с таким именем, пропускаем
