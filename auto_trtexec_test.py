@@ -114,11 +114,6 @@ if __name__ == '__main__':
         # нумеруем
         name = str(i+1)+"_"+name
 
-        # если в save_dir уже есть файл с таким именем, пропускаем
-        if os.path.exists(os.path.join(opt.save_dir, name+".txt")):
-            print(os.path.join(opt.save_dir, name+".txt") + " уже сущесвует! Модель пропущена...")
-            continue
-
         # формируем строку исполняемой комманды
         command = str(opt.trtexec_dir) + "./trtexec "+ params + " "+global_params + " > buff.txt"
         command = " ".join(command.split()) 
@@ -126,6 +121,10 @@ if __name__ == '__main__':
         print(name)
         
         if not opt.dev:
+            # если в save_dir уже есть файл с таким именем, пропускаем
+            if os.path.exists(os.path.join(opt.save_dir, name+".txt")):
+                print(os.path.join(opt.save_dir, name+".txt") + " уже сущесвует! Модель пропущена...")
+                continue
             # выполянем команду
             try:
                 os.system(command) 
