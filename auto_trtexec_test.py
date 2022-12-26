@@ -112,7 +112,7 @@ if __name__ == '__main__':
         # скращаем имя
         name = name[name.find("weights"):]
         # нумеруем
-        name = str(i+1)+"_"+name
+        #name = str(i+1)+"_"+name
 
         # формируем строку исполняемой комманды
         command = str(opt.trtexec_dir) + "./trtexec "+ params + " "+global_params + " > buff.txt"
