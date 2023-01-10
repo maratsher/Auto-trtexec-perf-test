@@ -27,14 +27,13 @@ def Cartesian(list_a, n):
     return temp
 
 # создаем list из файла
-# --flag1 [v1 v2] {path} ->
-# [--flag v1, --flag v2]
 def make_list(file):
     lst = []
     with open(file) as file:
         lines = file.read().split('\n')
         reg = r"\[(.*?)\]"
         regp = r"\{(.*?)\}"
+        print("ЗАШЛИ В ФАЙЛ")
         for l in lines:
             m = re.findall(reg, l)
             mp = re.findall(regp, l)
@@ -47,48 +46,51 @@ def make_list(file):
                 else:
                     lst.append(l)
             elif len(m) == 1:
+                l = l.split(' ')[0]
                 for v in m[0].split(" "):
-                    l = l.split('[')[0]
                     if(len(mp) == 1):
-                        lst.append((l+"="+os.path.join(mp[0], v)).replace(" ", ""))
+                        lst.append(l+"="+os.path.join(mp[0], v))
                     else:
-                        lst.append((l+"="+v).replace(" ", ""))
+                        lst.append(l+"="+v)
+    print(lst)
     return lst
  
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--save-dir', type=str, default='./', help='Save dir')
-    parser.add_argument('--param-dir', type=str, default='./params', help='Dir with params for models')
-    parser.add_argument('--global-params', type=str, default='./global-params.txt', help='File with global params')
-    parser.add_argument('--trtexec-dir', type=str, default='./', help='Trtexec bin dir')
+    parser.add_argument('--sd', type=str, default='./', help='Save dir')
+    parser.add_argument('--pd', type=str, default='./params', help='Dir with params for models')
+    parser.add_argument('--gp', type=str, default='./global-params.txt', help='File with global params')
+    parser.add_argument('--te', type=str, default='./', help='Trtexec bin dir')
     parser.add_argument('--qps', type=int, default=-1, help='qps condition')
-    parser.add_argument('--dev', type=bool, default=False, help='dev mode')
+    parser.add_argument('--dev', type=bool, default=False, help='Dev mode')
 
     opt = parser.parse_args()
     print(opt)
 
-    if not os.path.isdir(opt.save_dir):
-        print(opt.save_dir + " is not dir")
+    if not os.path.isdir(opt.sd):
+        print(opt.sd + " is not dir")
         exit()
 
-    if not os.path.isdir(opt.param_dir):
-        print(opt.param_dir + " is not dir")
+    if not os.path.isdir(opt.pd):
+        print(opt.pd + " is not dir")
         exit()
     
-    if not os.path.exists(os.path.join(opt.trtexec_dir, "trtexec")):
-        print("Could not find "+os.path.join(opt.trtexec_dir, "trtexec"))
+    if not os.path.exists(os.path.join(opt.te, "trtexec")):
+        print("Could not find "+os.path.join(opt.te, "trtexec"))
         exit()
 
-    if not os.path.exists(opt.global_params):
-        print("Global params file " +opt.global_params+ " dont exist")
+    if not os.path.exists(opt.gp):
+        print("Global params file " +opt.gp+ " dont exist")
         exit()
 
-    params_dir = opt.param_dir
-    with open(opt.global_params) as file:
+    params_dir = opt.pd
+    with open(opt.gp) as file:
         global_params = file.readline()
-    L = [] # список списков параметров
+    
+    # список списков параметров
+    L = []
 
-    # разворачиваем файл с параметры в списки
+    # разворачиваем файлы с параметрами в списки
     for file in sorted(os.listdir(params_dir)):
         filename = os.fsdecode(file)
         if filename.endswith(".txt"):
@@ -115,10 +117,9 @@ if __name__ == '__main__':
         #name = str(i+1)+"_"+name
 
         # формируем строку исполняемой комманды
-        command = str(opt.trtexec_dir) + "./trtexec "+ params + " "+global_params + " > buff.txt"
+        command = str(opt.te) + "./trtexec "+ params + " "+global_params + " > buff.txt"
         command = " ".join(command.split()) 
         print(command)
-        #print(name)
         
         if not opt.dev:
             # если в save_dir уже есть файл с таким именем, пропускаем
