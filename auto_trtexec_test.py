@@ -30,11 +30,12 @@ def Cartesian(list_a, n):
 def make_list(file):
     lst = []
     with open(file) as file:
-        lines = file.read().split('\n')
+        lines = file.readlines()
         reg = r"\[(.*?)\]"
         regp = r"\{(.*?)\}"
         print("ЗАШЛИ В ФАЙЛ")
         for l in lines:
+            l = l.strip()
             m = re.findall(reg, l)
             mp = re.findall(regp, l)
             if(len(m) > 1):
